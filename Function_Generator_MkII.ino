@@ -5,37 +5,38 @@
 // Creation Date: 30/10/2012                    //
 //----------------------------------------------//
 
-#define verbose 1 // Verbose information output setting
-#define debug 1 // Debug information output setting
-
-#define inPin 0	// Analog input pin to use
-#define outPin 2	// Digital output pin to use
+#define inPin 2	// Analog input pin to use
+#define outPin 0	// Digital output pin to use
+#define inLower 100
+#define inUpper 1000
 
 double analogIn = 0;
 int outputDelay = 0;
+int currentOutput = 0;
 
 void setup()
 {
-	Serial.begin(9600);
-	pinMode(inPin, INPUT);
 	pinMode(outPin, OUTPUT);
-	if (verbose >= 1) Serial.println("Function generator ready");
 }
 
 void loop()
 {
 	analogIn = analogRead(inPin);
-	if (debug >= 1) Serial.println(analogIn);
+        currentOutput = !currentOutput;
 
-	outputDelay = map(analogIn, 200, 1023, 500, 4); // valueIn, inLower, inUpper, outLower, outUpper [e.g. 0, 1023, 0, 250]
-	if (debug >= 1) Serial.println(outputDelay);
-
-	if (analogIn <= 200) {
-		digitalWrite(outPin,LOW);
+	if (analogIn <= inLower) {
+		digitalWrite(outPin, 0);
 	}
-
-	digitalWrite(outPin, HIGH);
-	delay(outputDelay);
-	digitalWrite(outPin, LOW);
-	delay(outputDelay);
+        else if (analogIn >= inUpper)
+        {
+	  digitalWrite(outPin, currentOutput);
+	  delay(2);
+        }
+        else 
+        {
+	  outputDelay = map(analogIn, inLower, inUpper, 500, 3); // valueIn, inLower, inUpper, outLower, outUpper [e.g. 100, 1023, 500, 2]
+        
+	  digitalWrite(outPin, currentOutput);
+	  delay(outputDelay);
+        }
 }
